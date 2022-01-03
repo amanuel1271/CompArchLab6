@@ -9,12 +9,13 @@ module ALU(input_one,input_two,opcode,funct3,funct7,Alu_result,bcond);
   reg  [31:0] input_o,input_tw;
   reg [6:0] opcod,funct72;
   reg [2:0] funct32;
+  
   always @(opcode)
-  opcod = opcode;
+    opcod = opcode;
   always @(funct3)
-  funct32 = funct3;
+    funct32 = funct3;
   always @(funct7)
-  funct72 = funct7;
+    funct72 = funct7;
   
    always @(input_one) begin
   Alu_in1 = input_one;
@@ -22,9 +23,9 @@ module ALU(input_one,input_two,opcode,funct3,funct7,Alu_result,bcond);
    end
    
    always @(input_two) begin
-  Alu_in2 = input_two;
-  input_tw = input_two;
-    end
+    Alu_in2 = input_two;
+    input_tw = input_two;
+   end
  
   always @(*) begin
 
@@ -38,6 +39,7 @@ module ALU(input_one,input_two,opcode,funct3,funct7,Alu_result,bcond);
             Alu_result = Alu_in1 - Alu_in2;
 
         end
+        
         3'b001: // left shift logical
           Alu_result = (input_o << input_tw[4:0]);
         3'b010: // Set less than
@@ -58,6 +60,7 @@ module ALU(input_one,input_two,opcode,funct3,funct7,Alu_result,bcond);
           Alu_result = (input_o & input_tw);
        endcase
      end // if -end
+   
     else if (opcod == 7'b0010011) begin // immediates but doesnt include load
       bcond = 0;
       case(funct32)
@@ -134,12 +137,7 @@ module ALU(input_one,input_two,opcode,funct3,funct7,Alu_result,bcond);
         default: bcond = 0;
 
       endcase
-
-
     end // else if end
-
-
-
         end // always - end
 
 endmodule
