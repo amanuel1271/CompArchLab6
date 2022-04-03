@@ -70,21 +70,21 @@ end
  reg [31:0] IF_ID_nex_PC;
  reg  IF_ID_is_NOP;
  reg IF_ID_isBranch,IF_ID_RegWrite,IF_ID_MemWrite,IF_ID_MemRead,IF_ID_UseImm;
-    reg [1:0] IF_ID_IsjorB,IF_ID_DataRegWrite,IF_ID_DataRegWrite2;
-    reg [2:0] IF_ID_LoadExtend,IF_ID_Immextend;
+ reg [1:0] IF_ID_IsjorB,IF_ID_DataRegWrite,IF_ID_DataRegWrite2;
+ reg [2:0] IF_ID_LoadExtend,IF_ID_Immextend;
 
 
 
   // ID_EX pipeline registers
-    reg [31:0] ID_EX_IR;
+ reg [31:0] ID_EX_IR;
  reg [31:0] ID_EX_cur_PC;
  reg [31:0] ID_EX_nex_PC;
  reg  ID_EX_is_NOP;
  reg ID_EX_isBranch,ID_EX_RegWrite,ID_EX_MemWrite,ID_EX_MemRead,ID_EX_UseImm;
-    reg [1:0] ID_EX_IsjorB,ID_EX_DataRegWrite,ID_EX_DataRegWrite2;
-   reg [2:0] ID_EX_LoadExtend,ID_EX_Immextend;
+ reg [1:0] ID_EX_IsjorB,ID_EX_DataRegWrite,ID_EX_DataRegWrite2;
+ reg [2:0] ID_EX_LoadExtend,ID_EX_Immextend;
  //additional control signals for Execute stage
-   reg [1:0] ID_EX_AluSrc_A ,ID_EX_AluSrc_B;//from bypasssing
+ reg [1:0] ID_EX_AluSrc_A ,ID_EX_AluSrc_B;//from bypasssing
  reg [31:0] ID_EX_SrcA,ID_EX_SrcB; // these are the two inputs to alu if no forwarding
  reg [31:0] ID_EX_Src2;// we need to pass these to pipeline because store needs this value to write to memory
 
@@ -92,12 +92,12 @@ end
 
  //EX_MEM pipeline registers
  reg [31:0] EX_MEM_IR;
-   reg [31:0] EX_MEM_cur_PC; // the current PC for the instryuvtion, to use pc+4 JAL,JALR
+ reg [31:0] EX_MEM_cur_PC; // the current PC for the instryuvtion, to use pc+4 JAL,JALR
  reg  EX_MEM_is_NOP;
  reg EX_MEM_RegWrite,EX_MEM_MemWrite,EX_MEM_MemRead;
-    reg [1:0] EX_MEM_DataRegWrite,EX_MEM_DataRegWrite2;
+ reg [1:0] EX_MEM_DataRegWrite,EX_MEM_DataRegWrite2;
  reg [31:0] EX_MEM_ALUres;
-    reg EX_MEM_bcond;
+ reg EX_MEM_bcond;
  reg [31:0] EX_MEM_Src2; // FOR STORE MEMORY USE
 
 
@@ -105,21 +105,21 @@ end
 
  //MEM_WB pipeline registers
  reg [31:0] MEM_WB_IR; 
-    reg [31:0] MEM_WB_cur_PC; // the current PC for the instryuvtion, to use pc+4 JAL,JALR
+ reg [31:0] MEM_WB_cur_PC; // the current PC for the instryuvtion, to use pc+4 JAL,JALR
  reg  MEM_WB_is_NOP;
  reg MEM_WB_RegWrite;
-    reg [1:0] MEM_WB_DataRegWrite,MEM_WB_DataRegWrite2;
+ reg [1:0] MEM_WB_DataRegWrite,MEM_WB_DataRegWrite2;
  reg [31:0] MEM_WB_ALUres;
-    reg MEM_WB_bcond;
+ reg MEM_WB_bcond;
  reg [31:0] MEM_WB_DATA_MEM_Res; 
  //temporary registers heading to decoding stage
  reg [31:0] temp_RF_RD1,temp_RF_RD2,SignextendedImm;
  //some assign statements
  assign I_MEM_CSN = ~RSTn; // works when reset is low
-   assign D_MEM_CSN = ~RSTn | ~(EX_MEM_MemRead | EX_MEM_MemWrite); // D-mem works only wheen either control signals are high otherwise i dont need to use
-    assign D_MEM_WEN = ~EX_MEM_MemWrite;// Write enable negative
-    assign RF_WE = MEM_WB_RegWrite; // Write enable is regwrite
-    assign D_MEM_DOUT = EX_MEM_Src2; // the data written to memory is the data read from the second register
+ assign D_MEM_CSN = ~RSTn | ~(EX_MEM_MemRead | EX_MEM_MemWrite); // D-mem works only wheen either control signals are high otherwise i dont need to use
+ assign D_MEM_WEN = ~EX_MEM_MemWrite;// Write enable negative
+ assign RF_WE = MEM_WB_RegWrite; // Write enable is regwrite
+ assign D_MEM_DOUT = EX_MEM_Src2; // the data written to memory is the data read from the second register
  assign D_MEM_ADDR = EX_MEM_ALUres[11:0];
  reg [3:0] Enable = 4'b1111;
  assign D_MEM_BE = Enable;
@@ -138,7 +138,7 @@ end
  wire JAL_flush;
  wire JALR_flush;
 
- assign B_flush_T = bcond && (     ({{20{ID_EX_IR[31]}},ID_EX_IR[7],ID_EX_IR[30:25],ID_EX_IR[11:8],1'b0}+ ID_EX_cur_PC) !== ID_EX_nex_PC    ) ; 
+ assign B_flush_T = bcond && (({{20{ID_EX_IR[31]}},ID_EX_IR[7],ID_EX_IR[30:25],ID_EX_IR[11:8],1'b0}+ ID_EX_cur_PC) !== ID_EX_nex_PC) ; 
  assign B_flush_NT =  ~bcond && ( (ID_EX_cur_PC+4)!= ID_EX_nex_PC );
  assign JAL_flush = (ID_EX_IR[6:0] == 7'b1101111 )  &&   ( ({ {12{ID_EX_IR[31]}},ID_EX_IR[19:12],ID_EX_IR[20],ID_EX_IR[30:21],1'b0 } + ID_EX_cur_PC) !== ID_EX_nex_PC);
  assign JALR_flush = (ID_EX_IR[6:0] == 7'b1100111) &&  ( ({ {12{ID_EX_IR[31]}},ID_EX_IR[19:12],ID_EX_IR[20],ID_EX_IR[30:21],1'b0 } + ID_EX_SrcA) !== ID_EX_nex_PC);
@@ -149,16 +149,16 @@ end
 
 
  //
-  ALU Alu_unit (.input_one(input_one),.input_two(input_two),.opcode(ID_EX_IR[6:0]),.funct7(ID_EX_IR[31:25]),.funct3(ID_EX_IR[14:12]),.Alu_result(Alu_result),.bcond(bcond) );
+ ALU Alu_unit (.input_one(input_one),.input_two(input_two),.opcode(ID_EX_IR[6:0]),.funct7(ID_EX_IR[31:25]),.funct3(ID_EX_IR[14:12]),.Alu_result(Alu_result),.bcond(bcond) );
  Control control_unit (.Inst(IR),.IsjorB(IsjorB),.DataRegWrite(DataRegWrite),.isBranch(isBranch),.RegWrite(RegWrite),.MemWrite(MemWrite),.MemRead(MemRead),.UseImm(UseImm),.DataRegWrite2(DataRegWrite2),.LoadExtend(LoadExtend),.Immextend(Immextend) );
  wire stall;
  wire [1:0] AluSrc_A,AluSrc_B;
  forwardAndStall foward_unit(.IF_ID(IF_ID_IR) ,.ID_EX(ID_EX_IR),.EX_MEM(EX_MEM_IR) ,.stall_flag(stall) ,.AluSrc_A(AluSrc_A) ,.AluSrc_B(AluSrc_B));
  initial begin
-  NUM_INST <= 0;
+   NUM_INST <= 0;
  end
  // HALT
-   assign HALT = (EX_MEM_IR === 32'h00c00093 && ID_EX_IR === 32'h00008067);
+ assign HALT = (EX_MEM_IR === 32'h00c00093 && ID_EX_IR === 32'h00008067);
  // HALT
  // Only allow for NUM_INST
 
@@ -181,7 +181,7 @@ end
  always @(RSTn) begin
      if (RSTn)
        PC_32 = 32'b0;
-  end
+ end
  always @(PC_32) begin // WHEN PC_32 changes, fetch an instruction
   I_MEM_ADDR = PC_32[11:0];
  end
@@ -208,15 +208,15 @@ end
             IF_ID_MemWrite <=MemWrite;
             IF_ID_MemRead <= MemRead;
             IF_ID_UseImm <= UseImm;
-               IF_ID_IsjorB <= IsjorB;
+            IF_ID_IsjorB <= IsjorB;
             IF_ID_DataRegWrite <=DataRegWrite;
             IF_ID_DataRegWrite2 <=DataRegWrite2;
-                  IF_ID_LoadExtend <=LoadExtend;
+            IF_ID_LoadExtend <=LoadExtend;
             IF_ID_Immextend <=Immextend;
             //pc prediction (use btb when you implement it)
             PC_32 <= PC_32 +4;
          end
-               else if(flush ===1)begin
+         else if(flush ===1)begin
             IF_ID_IR <= NOP;
             IF_ID_cur_PC<=PC_32;
             IF_ID_nex_PC<= PC_32 + 4;
@@ -226,10 +226,10 @@ end
             IF_ID_MemWrite <=0;
             IF_ID_MemRead <= 0;
             IF_ID_UseImm <= 1;
-               IF_ID_IsjorB <= 0;
+            IF_ID_IsjorB <= 0;
             IF_ID_DataRegWrite <=2;
             IF_ID_DataRegWrite2 <=0;
-                  IF_ID_LoadExtend <=2'bx;
+            IF_ID_LoadExtend <=2'bx;
             IF_ID_Immextend <=2'bx;
             //pc prediction (use btb when you implement it)
             if (ID_EX_isBranch && B_flush_NT)
@@ -249,16 +249,17 @@ end
    temp_RF_RD2= RF_RD2;   
   end
 //For  sign extended immediate
- always @(IF_ID_IR) begin
- if (IF_ID_IR[6:0] == 7'b1101111 || IF_ID_IR[6:0] == 7'b1100111) // JAL,JALR
-  SignextendedImm =  { {12{IF_ID_IR[31]}},IF_ID_IR[19:12],IF_ID_IR[20],IF_ID_IR[30:21],1'b0 };
- else if (IF_ID_IR[6:0] == 7'b1100011) // branch
-  SignextendedImm = { {20{IF_ID_IR[31]}},IF_ID_IR[7],IF_ID_IR[30:25],IF_ID_IR[11:8],1'b0 };
- else if ( IF_ID_IR[6:0] == 7'b0010011 || IF_ID_IR[6:0] == 7'b0000011) //ALUI or load
-  SignextendedImm = { {20{IF_ID_IR[31]}},IF_ID_IR[31:20] };
- else
-  SignextendedImm = { {20{IF_ID_IR[31]}},IF_ID_IR[31:25],IF_ID_IR[11:7] };
-    end
+ always @(IF_ID_IR) 
+  begin
+    if (IF_ID_IR[6:0] == 7'b1101111 || IF_ID_IR[6:0] == 7'b1100111) // JAL,JALR
+     SignextendedImm =  { {12{IF_ID_IR[31]}},IF_ID_IR[19:12],IF_ID_IR[20],IF_ID_IR[30:21],1'b0 };
+    else if (IF_ID_IR[6:0] == 7'b1100011) // branch
+     SignextendedImm = { {20{IF_ID_IR[31]}},IF_ID_IR[7],IF_ID_IR[30:25],IF_ID_IR[11:8],1'b0 };
+    else if ( IF_ID_IR[6:0] == 7'b0010011 || IF_ID_IR[6:0] == 7'b0000011) //ALUI or load
+     SignextendedImm = { {20{IF_ID_IR[31]}},IF_ID_IR[31:20] };
+    else
+     SignextendedImm = { {20{IF_ID_IR[31]}},IF_ID_IR[31:25],IF_ID_IR[11:7] };
+   end
 
 
   //decoding stage
@@ -267,25 +268,25 @@ end
       if ((cache_stall === 1'b0) || (cache_stall === 1'bx)) begin
             if(stall!== 1 && flush!==1)begin
             //**************************************check for flush signal
-               ID_EX_IR <= IF_ID_IR;
-            ID_EX_cur_PC<=IF_ID_cur_PC;
-            ID_EX_nex_PC<=IF_ID_nex_PC;
-            ID_EX_is_NOP <= IF_ID_is_NOP;
-            ID_EX_isBranch <= IF_ID_isBranch;
-            ID_EX_RegWrite<= IF_ID_RegWrite;
-            ID_EX_MemWrite<= IF_ID_MemWrite;
-            ID_EX_MemRead<= IF_ID_MemRead;
-            ID_EX_UseImm<= IF_ID_UseImm;
-               ID_EX_IsjorB<= IF_ID_IsjorB;
-            ID_EX_DataRegWrite<= IF_ID_DataRegWrite;
-            ID_EX_DataRegWrite2<= IF_ID_DataRegWrite2;
-               ID_EX_LoadExtend<= IF_ID_LoadExtend;
-            ID_EX_Immextend<= IF_ID_Immextend;
-            //additional control signals for Execute stage
-               ID_EX_AluSrc_A <= AluSrc_A;
-            ID_EX_AluSrc_B <=AluSrc_B;//from bypasssing
-            ID_EX_SrcA<= temp_RF_RD1; 
-            //////////the mux//////////////////////////
+              ID_EX_IR <= IF_ID_IR;
+              ID_EX_cur_PC<=IF_ID_cur_PC;
+              ID_EX_nex_PC<=IF_ID_nex_PC;
+              ID_EX_is_NOP <= IF_ID_is_NOP;
+              ID_EX_isBranch <= IF_ID_isBranch;
+              ID_EX_RegWrite<= IF_ID_RegWrite;
+              ID_EX_MemWrite<= IF_ID_MemWrite;
+              ID_EX_MemRead<= IF_ID_MemRead;
+              ID_EX_UseImm<= IF_ID_UseImm;
+              ID_EX_IsjorB<= IF_ID_IsjorB;
+              ID_EX_DataRegWrite<= IF_ID_DataRegWrite;
+              ID_EX_DataRegWrite2<= IF_ID_DataRegWrite2;
+              ID_EX_LoadExtend<= IF_ID_LoadExtend;
+              ID_EX_Immextend<= IF_ID_Immextend;
+              //additional control signals for Execute stage
+              ID_EX_AluSrc_A <= AluSrc_A;
+              ID_EX_AluSrc_B <=AluSrc_B;//from bypasssing
+              ID_EX_SrcA<= temp_RF_RD1; 
+              //////////the mux//////////////////////////
             if(IF_ID_UseImm)
                ID_EX_SrcB <= SignextendedImm;
             else
@@ -346,31 +347,31 @@ end
   //Execute stage
   always @(posedge CLK)begin
       if ((cache_stall === 1'b0) || (cache_stall === 1'bx)) begin
-            EX_MEM_IR <= ID_EX_IR;
-            EX_MEM_cur_PC<= ID_EX_cur_PC; // the current PC for the instryuvtion, to use pc+4 JAL,JALR
+         EX_MEM_IR <= ID_EX_IR;
+         EX_MEM_cur_PC<= ID_EX_cur_PC; // the current PC for the instryuvtion, to use pc+4 JAL,JALR
          EX_MEM_is_NOP<= ID_EX_is_NOP;
          EX_MEM_RegWrite<= ID_EX_RegWrite;
          EX_MEM_MemWrite<= ID_EX_MemWrite;
          EX_MEM_MemRead<= ID_EX_MemRead;
-            EX_MEM_DataRegWrite<= ID_EX_DataRegWrite;
+         EX_MEM_DataRegWrite<= ID_EX_DataRegWrite;
          EX_MEM_DataRegWrite2<= ID_EX_DataRegWrite2;
          EX_MEM_ALUres<= Alu_result;
             EX_MEM_bcond <= bcond;
          if (ID_EX_IR[6:0] === 7'b0100011) begin // store
-         if( (ID_EX_IR[24:20] !== EX_MEM_IR[11:7]) && (ID_EX_IR[24:20] !== MEM_WB_IR[11:7]) ) // second source register has no dependency
-            EX_MEM_Src2 <= ID_EX_Src2;
-         else if(  (ID_EX_IR[24:20] === MEM_WB_IR[11:7]) )
-            EX_MEM_Src2 <= WB_and_Forward;
-         else if( (ID_EX_IR[24:20] === EX_MEM_IR[11:7]) )
-            EX_MEM_Src2 <= EX_MEM_ALUres; 
-         end 
-         else begin
-         if(ID_EX_AluSrc_B==0)
-            EX_MEM_Src2 <= ID_EX_Src2;
-         else if(ID_EX_AluSrc_B== 1)
-            EX_MEM_Src2 <= WB_and_Forward;
-         else if(ID_EX_AluSrc_B==2)
-            EX_MEM_Src2 <= EX_MEM_ALUres; 
+           if( (ID_EX_IR[24:20] !== EX_MEM_IR[11:7]) && (ID_EX_IR[24:20] !== MEM_WB_IR[11:7]) ) // second source register has no dependency
+              EX_MEM_Src2 <= ID_EX_Src2;
+           else if(  (ID_EX_IR[24:20] === MEM_WB_IR[11:7]) )
+              EX_MEM_Src2 <= WB_and_Forward;
+           else if( (ID_EX_IR[24:20] === EX_MEM_IR[11:7]) )
+              EX_MEM_Src2 <= EX_MEM_ALUres; 
+           end 
+           else begin
+           if(ID_EX_AluSrc_B==0)
+              EX_MEM_Src2 <= ID_EX_Src2;
+           else if(ID_EX_AluSrc_B== 1)
+              EX_MEM_Src2 <= WB_and_Forward;
+           else if(ID_EX_AluSrc_B==2)
+              EX_MEM_Src2 <= EX_MEM_ALUres; 
          end
 
 
@@ -385,13 +386,13 @@ end
   always@(posedge CLK)begin
       if ((cache_stall === 1'b0) || (cache_stall === 1'bx)) begin
          MEM_WB_IR <= EX_MEM_IR; 
-            MEM_WB_cur_PC<= EX_MEM_cur_PC; // the current PC for the instryuvtion, to use pc+4 JAL,JALR
+         MEM_WB_cur_PC<= EX_MEM_cur_PC; // the current PC for the instryuvtion, to use pc+4 JAL,JALR
          MEM_WB_is_NOP<= EX_MEM_is_NOP;
          MEM_WB_RegWrite<= EX_MEM_RegWrite;
-            MEM_WB_DataRegWrite<= EX_MEM_DataRegWrite;
+         MEM_WB_DataRegWrite<= EX_MEM_DataRegWrite;
          MEM_WB_DataRegWrite2<= EX_MEM_DataRegWrite2;
          MEM_WB_ALUres<= EX_MEM_ALUres;
-            MEM_WB_bcond<= EX_MEM_bcond;
+         MEM_WB_bcond<= EX_MEM_bcond;
          if (cache_hit && (EX_MEM_IR === 7'b0000011)) // if cache hit and it is a load don't take value from D_MEM_DI
             MEM_WB_DATA_MEM_Res <= load_from_cache;
          else if (cache_miss && (cache_miss_cycle == 6) && (EX_MEM_IR[6:0] === 7'b0000011))
@@ -438,7 +439,7 @@ always @(EX_MEM_IR) begin // whenever EX_MEM instruction changes
         save_EX_MEM_AluResult = EX_MEM_ALUres;
         save_EX_MEM_MemWrite = EX_MEM_MemWrite;
         // do appropriate thing
-         num_of_miss = num_of_miss + 1;
+        num_of_miss = num_of_miss + 1;
         cache_miss = 1;
         cache_hit = 0;
         cache_miss_cycle = 1;
@@ -594,7 +595,6 @@ always @(posedge CLK) begin
   
 
 end
- 
 
 endmodule
 
